@@ -2,8 +2,6 @@
 
 **Author:** Chirag Shinde (chirag.m.shinde@gmail.com)
 
----
-
 ## Executive Summary
 
 Telecommunications operators have no shortage of ML ambition. They have a shortage of execution infrastructure to match it. The pattern recurs across Tier-1 and Tier-2 operators alike: capable squads build capable models in isolation, each rebuilding the same feature pipelines, training infrastructure, and deployment scripts from scratch. Then the organisation tries to scale from five models to fifty, and the ad-hoc approach breaks: duplicated infrastructure multiplies maintenance costs, governance gaps produce ungoverned production deployments, and production incidents trace back to models nobody properly reviewed.
