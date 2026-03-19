@@ -31,7 +31,7 @@ The Executive Summary and this reading guide are unnumbered preamble. Numbered s
 | Role | Recommended Sections | Reading Time |
 |---|---|---|
 | CFO / CTO | Executive Summary + §1 (Business Case) + §8 (Evaluation and Operational Impact) | ~20 min |
-| Platform / MLOps architect | §4 (Background and Prior Art) through §10 (Platform Testing Strategy) | ~60 min |
+| Platform / MLOps architect | §4 (Background and Related Work) through §10 (Platform Testing Strategy) | ~60 min |
 | ML engineer | §5 (Proposed Approach) through §9 (Production Considerations) + companion code; §11 if deploying xApps using RL policies | ~45 min |
 | NOC / Operations architect | §9 (Production Considerations) + §10 (Platform Testing Strategy) + §14 (Operational Observability) | ~30 min |
 | AI/Data Leadership | Executive Summary + §8 (Evaluation and Operational Impact) + (optional) §11 (Reinforcement Learning Lifecycle Extensions) | ~25 min |
@@ -59,7 +59,7 @@ The companion code files (`01`–`05` plus `flink_feast_push_stub.py`) are self-
 | 5 | Model Promotion State Machine | §6 System Design |
 | 6 | Multi-Team Governance and Conflict Detection Flow | §6 System Design |
 | 7 | Implementation Roadmap and Phased Adoption | §16 Getting Started |
-| 8 | Standards Traceability Map | §4 Background and Prior Art |
+| 8 | Standards Traceability Map | §4 Background and Related Work |
 | 9 | Build-vs-Buy Decision Flowchart | §13 Build-vs-Buy Analysis |
 
 ---
@@ -330,7 +330,7 @@ A shared feature store with clearly defined entity models (`cell_id`, `site_id`,
 
 ---
 
-## 4. Background and Prior Art
+## 4. Background and Related Work
 
 ### What the Standards Say — and What They Leave Unspecified
 
@@ -2022,7 +2022,7 @@ The coursebook covers single-team, single-model MLOps pipelines. This whitepaper
 
 ### Operator Case Studies and Industry References
 
-The AT&T (EIAP consolidation), Telefónica (AI Centre of Excellence with national team autonomy), and Vodafone ("Nucleus" data platform) case studies are discussed in detail in Section 4 (Background and Prior Art), where they provide the empirical grounding for the hybrid platform model and the Layer 1-first implementation sequence. Readers seeking the full case study analysis should refer to that section.
+The AT&T (EIAP consolidation), Telefónica (AI Centre of Excellence with national team autonomy), and Vodafone ("Nucleus" data platform) case studies are discussed in detail in Section 4 (Background and Related Work), where they provide the empirical grounding for the hybrid platform model and the Layer 1-first implementation sequence. Readers seeking the full case study analysis should refer to that section.
 
 **TM Forum Catalyst Projects — Autonomous Networks AI Governance (Project C-24.0.615 and related).** The TM Forum Catalyst programme has produced practitioner-authored governance frameworks and proof-of-concept implementations for AI lifecycle management at operators. These are the most accessible entry point for operators seeking TM Forum IG1230-aligned governance tooling.
 
