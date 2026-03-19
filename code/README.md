@@ -21,6 +21,7 @@ A standards-traceable, open-source reference architecture for operating ML at te
 ```
 telco-mlops-reference-arch/
 ├── README.md                           ← You are here
+├── LICENSE                             ← CC BY-NC-SA 4.0 International
 ├── whitepaper.md                       ← Full whitepaper (18 sections, ~2000 lines)
 ├── all-diagrams.md                     ← Mermaid source for all 9 diagrams
 ├── FEATURE_NAMESPACE_CONVENTION.md     ← Feature naming convention guide
@@ -134,7 +135,7 @@ A follow-up paper extending the architecture to:
 
 ## Licence
 
-This work is provided as a reference architecture for educational and implementation purposes.
+This work is licensed under [Creative Commons Attribution-NonCommercial-ShareAlike 4.0 International](LICENSE). You may share and adapt the material with attribution, but not for commercial purposes. Adaptations must be distributed under the same licence.
 
 ---
 
