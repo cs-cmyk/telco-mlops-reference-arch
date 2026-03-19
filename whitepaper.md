@@ -1,6 +1,6 @@
 # Telco MLOps Reference Architecture: How Multi-Team, Multi-Model Organisations Ship ML at Scale Without Losing Control
 
----
+**Author:** Chirag Shinde — chirag.m.shinde@gmail.com
 
 ## Executive Summary
 
