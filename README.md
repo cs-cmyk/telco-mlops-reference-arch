@@ -23,7 +23,6 @@ telco-mlops-reference-arch/
 ├── README.md                           ← You are here
 ├── LICENSE                             ← CC BY-NC-SA 4.0 International
 ├── whitepaper.md                       ← Full whitepaper (18 sections, ~2000 lines)
-├── all-diagrams.md                     ← Mermaid source for all 9 diagrams
 ├── FEATURE_NAMESPACE_CONVENTION.md     ← Feature naming convention guide
 ├── diagrams/
 │   ├── diagram_01_telco_data_landscape.png
