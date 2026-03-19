@@ -18,7 +18,6 @@ A standards-traceable, open-source reference architecture for operating ML at te
 
 ## Repository Structure
 
-``` 
 | File | Description |
 |---|---|
 | `LICENSE` | CC BY-NC-SA 4.0 International |
@@ -33,7 +32,6 @@ A standards-traceable, open-source reference architecture for operating ML at te
 | `code/Makefile` | Pipeline orchestration (`make pipeline`, `make production`) |
 | `code/requirements.txt` | Python dependencies |
 | `code/FEATURE_NAMESPACE_CONVENTION.md` | Feature naming convention guide |
-```
 
 ---
 
