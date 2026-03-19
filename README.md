@@ -20,18 +20,18 @@ A standards-traceable, open-source reference architecture for operating ML at te
 
 | File | Description |
 |---|---|
-| `LICENSE` | CC BY-NC-SA 4.0 International |
-| `whitepaper.md` | Full whitepaper |
-| `code/01_synthetic_data.py` | Generate realistic telco PM counter data |
-| `code/02_feature_engineering.py` | Windowed aggregations, point-in-time features |
-| `code/03_model_training.py` | XGBoost + Random Forest with MLflow tracking |
-| `code/04_evaluation.py` | Temporal holdout, threshold gates, drift baseline |
-| `code/05_production_patterns.py` | OPA policy check, inference, drift detection |
-| `code/flink_feast_push_stub.py` | Streaming feature materialisation pattern |
-| `code/ves_parser_stub.py` | VES event parsing pattern |
-| `code/Makefile` | Pipeline orchestration (`make pipeline`, `make production`) |
-| `code/requirements.txt` | Python dependencies |
-| `code/FEATURE_NAMESPACE_CONVENTION.md` | Feature naming convention guide |
+| [`LICENSE`](LICENSE) | CC BY-NC-SA 4.0 International |
+| [`whitepaper.md`](whitepaper.md) | Full whitepaper |
+| [`code/01_synthetic_data.py`](code/01_synthetic_data.py) | Generate realistic telco PM counter data |
+| [`code/02_feature_engineering.py`](code/02_feature_engineering.py) | Windowed aggregations, point-in-time features |
+| [`code/03_model_training.py`](code/03_model_training.py) | XGBoost + Random Forest with MLflow tracking |
+| [`code/04_evaluation.py`](code/04_evaluation.py) | Temporal holdout, threshold gates, drift baseline |
+| [`code/05_production_patterns.py`](code/05_production_patterns.py) | OPA policy check, inference, drift detection |
+| [`code/flink_feast_push_stub.py`](code/flink_feast_push_stub.py) | Streaming feature materialisation pattern |
+| [`code/ves_parser_stub.py`](code/ves_parser_stub.py) | VES event parsing pattern |
+| [`code/Makefile`](code/Makefile) | Pipeline orchestration (`make pipeline`, `make production`) |
+| [`code/requirements.txt`](code/requirements.txt) | Python package dependencies |
+| [`code/FEATURE_NAMESPACE_CONVENTION.md`](code/FEATURE_NAMESPACE_CONVENTION.md) | Feature naming convention guide |
 
 ---
 
