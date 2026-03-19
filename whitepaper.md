@@ -1,6 +1,6 @@
 # Telco MLOps Reference Architecture: How Multi-Team, Multi-Model Organisations Ship ML at Scale Without Losing Control
 
-**Author:** Chirag Shinde (chirag.m.shinde@gmail.com)
+---
 
 ## Executive Summary
 
@@ -47,6 +47,20 @@ The companion code files (`01`–`05` plus `flink_feast_push_stub.py`) are self-
 **Prerequisites:** ML fundamentals and model lifecycle; feature engineering for telco data; model serving and inference patterns; monitoring and observability; familiarity with Kubernetes, CI/CD pipelines, and containerised ML workflows
 
 **Companion Code:** https://github.com/cs-cmyk/telco-mlops-reference-arch/code
+
+**Figures:**
+
+| Figure | Title | Section |
+|---|---|---|
+| 1 | Telco Data Landscape | §3 Data Requirements |
+| 2 | High-Level MLOps Reference Architecture | §5 Proposed Approach |
+| 3 | Detailed Data Flow Pipeline | §6 System Design |
+| 4 | Real-Time Inference Sequence Diagram | §6 System Design |
+| 5 | Model Promotion State Machine | §6 System Design |
+| 6 | Multi-Team Governance and Conflict Detection Flow | §6 System Design |
+| 7 | Implementation Roadmap and Phased Adoption | §16 Getting Started |
+| 8 | Standards Traceability Map | §4 Background and Prior Art |
+| 9 | Build-vs-Buy Decision Flowchart | §13 Build-vs-Buy Analysis |
 
 ---
 
@@ -1953,6 +1967,57 @@ The coursebook covers single-team, single-model MLOps pipelines. This whitepaper
 
 ---
 
+## Glossary
+
+### Telco and Network Terms
+
+| Term | Definition |
+|---|---|
+| PM counter | Performance Management counter — a numeric metric collected periodically from network elements (e.g., PRB utilisation, handover success rate) |
+| ROP | Result Output Period — the measurement interval for PM counters, typically 15 minutes |
+| PRB | Physical Resource Block — the fundamental radio resource unit in LTE/NR, representing 12 subcarriers × 1 slot |
+| gNB | gNodeB — the 5G NR base station |
+| eNB | eNodeB — the LTE base station |
+| HO | Handover — transfer of a UE connection from one cell to another |
+| CDR/xDR | Call Detail Record / Extended Detail Record — per-session records including duration, volume, cell IDs, and handover events |
+| xApp | Application running on the Near-RT RIC with control loop latency 10 ms–1 s |
+| rApp | Application running on the Non-RT RIC with control loop latency > 1 s |
+| RIC | RAN Intelligent Controller — the O-RAN component hosting AI/ML-driven network control functions (Near-RT RIC for real-time, Non-RT RIC for non-real-time) |
+| NOC | Network Operations Centre |
+| SMO | Service Management and Orchestration — the O-RAN management layer hosting the Non-RT RIC |
+| NSA | Non-Standalone — 5G NR deployment anchored to LTE EPC |
+| SA | Standalone — 5G NR deployment with 5G Core |
+| O1 | O-RAN management interface for PM data collection, configuration, and fault management |
+| E2 | O-RAN interface between Near-RT RIC and RAN nodes for real-time KPI reporting and control |
+| E2SM-KPM | E2 Service Model for KPI Monitoring — the data model for sub-second KPI reporting over E2 |
+| VES | Virtual Event Streaming — the ONAP/O-RAN event format for alarms and measurements |
+| RCP | RAN Control Parameter — a network parameter that an ML model's output writes or recommends (e.g., antenna tilt, transmit power, cell sleep mask) |
+| NWDAF | Network Data Analytics Function — the 3GPP 5G Core analytics component (TS 23.288) |
+| SON | Self-Organising Network — automated network optimisation functions (3GPP TS 28.627) |
+| LoopState | State machine concept from TS 28.627: ENABLING → ENABLED → DISABLING → DISABLED, used in this architecture to govern retraining and circuit breaker behaviour |
+
+### MLOps and Platform Terms
+
+| Term | Definition |
+|---|---|
+| Feature view | A Feast concept — a named, versioned definition of a set of features computed from a data source, associated with an entity (e.g., `cell_kpi_features` keyed by `cell_id`) |
+| Feature store | Infrastructure for managing, computing, storing, and serving ML features with point-in-time correctness and online/offline consistency |
+| Model card | Structured metadata document accompanying a registered model — includes performance metrics, training data description, intended use, limitations, and (for RAN models) RCP write-set declaration |
+| Model registry | Versioned repository of trained models with lifecycle states (experiment → staging → production → deprecated) |
+| RCP write-set | The set of RAN Control Parameters a model's output will write or recommend — declared at model registration, used for conflict screening |
+| Governance gate | The automated + human checkpoint at the model registry promotion boundary — validates model card completeness, performance thresholds, OPA policy compliance, and conflict screening |
+| OPA | Open Policy Agent — policy-as-code engine using the Rego language to enforce governance rules |
+| Shadow mode | Deployment stage where the model receives production traffic but its outputs are not acted upon — used for validation before canary |
+| Canary deployment | Progressive rollout where a new model serves a small percentage of traffic (e.g., 10%) while the incumbent serves the rest |
+| Training-serving skew | Discrepancy between the data a model sees during training and the data it sees during inference — the primary failure mode the feature store is designed to prevent |
+| Drift detection | Monitoring for distributional shift between training data and production inference data (feature drift) or between predicted and actual outcomes (concept drift) |
+| Wasserstein distance | Statistical distance metric used for drift detection — preferred over PSI for network features because it captures shift magnitude, not just presence |
+| Point-in-time correctness | Ensuring that features used for training reflect only information available at the time of the training label — prevents data leakage |
+| Namespace isolation | Kubernetes-based separation of team resources — each squad operates in its own namespace with resource quotas, network policies, and RBAC boundaries |
+| SHAP-DAG | The conflict detection mechanism — uses SHAP (SHapley Additive exPlanations) feature importance to build a directed acyclic graph of model interactions, quantifying interference between models sharing KPI dependencies |
+
+---
+
 ## 18. Further Reading
 
 ### Operator Case Studies and Industry References
@@ -2014,4 +2079,3 @@ The AT&T (EIAP consolidation), Telefónica (AI Centre of Excellence with nationa
 | **ONNX** | Cross-platform model packaging for serving portability | MIT | onnx.ai |
 
 ---
-
