@@ -18,32 +18,21 @@ A standards-traceable, open-source reference architecture for operating ML at te
 
 ## Repository Structure
 
-```
-telco-mlops-reference-arch/
-├── README.md                           ← You are here
-├── LICENSE                             ← CC BY-NC-SA 4.0 International
-├── whitepaper.md                       ← Full whitepaper (18 sections, ~2000 lines)
-├── FEATURE_NAMESPACE_CONVENTION.md     ← Feature naming convention guide
-├── diagrams/
-│   ├── diagram_01_telco_data_landscape.png
-│   ├── diagram_02_high_level_mlops_reference_architecture.png
-│   ├── diagram_03_detailed_data_flow_pipeline.png
-│   ├── diagram_04_real_time_inference_sequence_diagram.png
-│   ├── diagram_05_model_promotion_state_machine.png
-│   ├── diagram_06_multi_team_governance_and_conflict_detection_flow.png
-│   ├── diagram_07_implementation_roadmap_and_phased_adoption.png
-│   ├── diagram_08_standards_traceability_map.png
-│   └── diagram_09_build_vs_buy_decision_flowchart.png
-└── code/
-    ├── 01_synthetic_data.py            ← Generate realistic telco PM counter data
-    ├── 02_feature_engineering.py       ← Windowed aggregations, point-in-time features
-    ├── 03_model_training.py            ← XGBoost + Random Forest with MLflow tracking
-    ├── 04_evaluation.py                ← Temporal holdout, threshold gates, drift baseline
-    ├── 05_production_patterns.py       ← OPA policy check, inference, drift detection
-    ├── flink_feast_push_stub.py        ← Streaming feature materialisation pattern
-    ├── ves_parser_stub.py              ← VES event parsing pattern
-    ├── Makefile                         ← Pipeline orchestration (make pipeline, make production)
-    └── requirements.txt                ← Python dependencies
+``` 
+| File | Description |
+|---|---|
+| `LICENSE` | CC BY-NC-SA 4.0 International |
+| `whitepaper.md` | Full whitepaper |
+| `code/01_synthetic_data.py` | Generate realistic telco PM counter data |
+| `code/02_feature_engineering.py` | Windowed aggregations, point-in-time features |
+| `code/03_model_training.py` | XGBoost + Random Forest with MLflow tracking |
+| `code/04_evaluation.py` | Temporal holdout, threshold gates, drift baseline |
+| `code/05_production_patterns.py` | OPA policy check, inference, drift detection |
+| `code/flink_feast_push_stub.py` | Streaming feature materialisation pattern |
+| `code/ves_parser_stub.py` | VES event parsing pattern |
+| `code/Makefile` | Pipeline orchestration (`make pipeline`, `make production`) |
+| `code/requirements.txt` | Python dependencies |
+| `code/FEATURE_NAMESPACE_CONVENTION.md` | Feature naming convention guide |
 ```
 
 ---
