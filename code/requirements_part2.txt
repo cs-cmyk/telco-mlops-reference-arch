@@ -1,0 +1,57 @@
+# telco-mlops-part2 — Python dependencies
+# Companion code for "Telco MLOps Reference Architecture — Part 2"
+#
+# Install: pip install -r requirements.txt
+# Python:  3.10+ required, 3.11 recommended
+#
+# Scripts:
+#   [core]     part2_01–part2_04 (synthetic data, features, training, evaluation)
+#   [serving]  part2_05 (production patterns, BentoML serving)
+#   [compress] part2_06 (edge AI model compression)
+#   [twin]     part2_07 (digital twin)
+#   [rag]      part2_08 (RAG pipeline)
+#   [fraud]    part2_09 (CDR fraud ring detection)
+
+# ── Core (part2_01–part2_04) ────────────────────────────────────────────────
+pandas>=2.0,<3.0
+numpy>=1.24,<2.0
+scipy>=1.11,<2.0
+pyarrow>=14.0,<18.0
+scikit-learn>=1.4,<2.0
+joblib>=1.3,<2.0
+matplotlib>=3.8,<4.0
+seaborn>=0.13,<1.0
+shap>=0.43,<1.0
+
+# ── GNN (optional — part2_03 GNN module, part2_09 fraud GNN) ───────────────
+# PyTorch and PyG require platform-specific wheels.
+# CPU-only:    pip install torch --index-url https://download.pytorch.org/whl/cpu
+# CUDA 12.1:   pip install torch --index-url https://download.pytorch.org/whl/cu121
+# Then:        pip install torch_geometric
+#
+# If torch_geometric is not installed, part2_03 logs a warning and skips
+# GNN training — the tabular ensemble pipeline completes without it.
+# part2_09 falls back to a logistic regression baseline.
+#
+# Uncomment below for CPU-only installation (or install manually per above):
+# torch>=2.1,<3.0
+# torch_geometric>=2.5,<3.0
+
+# ── Serving (part2_05) ─────────────────────────────────────────────────────
+bentoml>=1.2,<2.0
+prometheus_client>=0.20,<1.0
+
+# ── Edge AI compression (optional — part2_06) ──────────────────────────────
+# Uncomment to enable full INT8 quantisation pipeline.
+# Requires torch (see GNN section above).
+# onnx>=1.15,<2.0
+# onnxruntime>=1.17,<2.0
+# skl2onnx>=1.16,<2.0
+
+# ── RAG pipeline (optional — part2_08) ─────────────────────────────────────
+# Uncomment to enable semantic embeddings and vector search.
+# Without these, part2_08 uses random embeddings and numpy-based search.
+# sentence-transformers>=2.7,<3.0
+# qdrant-client>=1.9,<2.0
+# deepeval>=0.21,<1.0          # For production faithfulness evaluation
+# openai>=1.30,<2.0            # Used for OpenAI-compatible vLLM client only
