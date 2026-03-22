@@ -774,6 +774,10 @@ Every agentic system that a European operator deploys in its network must demons
 
 ## 6. Proposed Approach
 
+![Figure 3: Graph ML Architecture Extension](diagrams/part2_diagram_04.png)
+
+*Figure 3: Graph ML Architecture Extension — Topology Construction, GNN Training, and KServe Serving*
+
 ### 6.1 Deep Anomaly Detection Upgrades
 
 The RAN paper §10 identified two natural next steps for the anomaly detection layer: upgrading the LSTM Autoencoder to a more expressive architecture, and extending the monitoring stack to cover the anomaly detector's own degradation modes. This section addresses both, and connects the answers to Part 1's existing Evidently monitoring stack.
@@ -963,9 +967,13 @@ The table below classifies each new Part 2 component according to O-RAN deployme
 
 ### 7.3 New Components: Layer 5 — Graph ML (GNN Root Cause Service)
 
-![Figure 7: System Component Deployment Map — Graph ML Architecture Extension](diagrams/part2_diagram_04.png)
+![Figure 7: System Component Deployment Map — Graph ML Architecture Extension](diagrams/part2_diagram_08.png)
 
 *Figure 7: System Component Deployment Map — rApp, Near-RT RIC, and E2 Interface Boundaries*
+
+![Figure 6: Heterogeneous Graph Schema](diagrams/part2_diagram_07.png)
+
+*Figure 6: Heterogeneous Graph Schema — Node Types, Edge Types, and Relationship Semantics*
 
 **Topology Graph Construction Service.** A Python microservice (Kubernetes Deployment, 2 vCPU / 4 GB RAM) that maintains a live in-memory graph snapshot using NetworkX for graph operations and PyG's `HeteroData` for model-compatible tensor representation.
 
@@ -1008,9 +1016,13 @@ The table below classifies each new Part 2 component according to O-RAN deployme
 
 > **Note:** The 30-second batch cycle means Layer 5 operates as a warm-path analytical layer, not a real-time control loop. Root cause attributions are available within approximately 32 seconds of a correlated anomaly pattern appearing in `ran.anomaly.scores`. This is appropriate for NOC investigation workflows (where the analyst typically requires 2–5 minutes to review an alert before acting) but not for automated radio parameter adjustments that require near-RT RIC timescales. The xApp/rApp distinction from the RAN paper §6 applies here: Layer 5 is an rApp deployed in the Non-RT RIC / SMO, not an xApp on the near-RT RIC E2 interface.
 
-### 7.4 New Components: Layer 6 — LLM/RAG (NOC Intelligence Service)
+### 7.4 New Components: Layer 6 — LLM/RAG
 
-![Figure 8: LLM/RAG Architecture for Telco Operations](diagrams/part2_diagram_05.png)
+![Figure 4: LLM/RAG Architecture for Telco Operations](diagrams/part2_diagram_05.png)
+
+*Figure 4: LLM/RAG Architecture — Document Ingestion, Hybrid Retrieval, Generation, and Guardrails* (NOC Intelligence Service)
+
+![Figure 8: LLM/RAG Architecture for Telco Operations](diagrams/part2_diagram_09.png)
 
 *Figure 8: RootCauseGNN Forward-Pass Data Flow Through HGTConv Layers / LLM-RAG Architecture*
 
@@ -1030,7 +1042,7 @@ The agentic architecture is detailed in Section 12. From a system design perspec
 
 **Human-in-the-loop gate:** Implemented as a LangGraph `interrupt()` node that pauses the agent state machine and posts a structured approval request to the NOC alert card UI via the TMF642 API. The NOC analyst approves, modifies, or rejects the proposed action within a configurable timeout (default: 10 minutes for non-critical actions, 2 minutes for time-sensitive auto-escalation). Timeout expiry results in action cancellation, not automatic execution — a deliberate fail-safe.
 
-![Figure 12: Agentic Orchestrator Trust Escalation and System Architecture](diagrams/part2_diagram_08.png)
+![Figure 12: Agentic Orchestrator Trust Escalation and System Architecture](diagrams/part2_diagram_12.png)
 
 *Figure 12: Agentic Orchestrator Trust Escalation Ladder — Level 0 Through Level 5 Autonomy Milestones*
 
@@ -1221,7 +1233,15 @@ This lifecycle ensures that the F1 ≥ 0.82 governance gate, defined at compress
 
 ### 8.5 Digital Twin Architecture
 
+![Figure 5: Digital Twin Architecture](diagrams/part2_diagram_06.png)
+
+*Figure 5: Digital Twin Architecture — Live Sync, Simulation, RL Training, and What-If Pre-flight*
+
 Digital twins serve two roles in this architecture: they generate synthetic training data for the GNN layer (§8.1), and they validate proposed network parameter changes before any automated action reaches the live network. Section 9 describes how the twin also supports mathematical optimisation (MILP and RL) for capacity planning. As illustrated in Figure 13, the twin is not a standalone system — it is a continuously synchronised replica of the live RAN state, constructed from two source streams and consumed by the optimisation hybrids described in §9.1 and §9.2.
+
+![Figure 13: Digital Twin Synchronisation Cycle](diagrams/part2_diagram_13.png)
+
+*Figure 13: Digital Twin Synchronisation Cycle — Live KPI Ingestion, State Reconciliation, and Counterfactual Replay*
 
 **Twin Construction**
 
@@ -1400,6 +1420,10 @@ Operators must document the human review process and demonstrate that fraud anal
 
 ## 9. Optimisation Hybrids
 
+![Figure 9: Multi-Paradigm Platform Architecture Overview](diagrams/part2_diagram_01.png)
+
+*Figure 9: Multi-Paradigm Platform Architecture Overview*
+
 The layers described in preceding sections — GNN root cause attribution, LLM/RAG narration, and the agentic safety framework — are fundamentally diagnostic. They identify what is wrong and why. Optimisation hybrids close the loop: given a diagnosis, they compute *what to change* and, via the agentic layer, execute that change autonomously within approved blast radius limits.
 
 Two complementary paradigms are used. Mixed-Integer Linear Programming (MILP) with ML surrogate inputs handles capacity optimisation problems that are well-bounded, relatively static, and require provably optimal solutions with interpretable constraint satisfaction. Reinforcement learning (RL) handles dynamic parameter tuning problems where the state space is continuous, the reward signal is observable at low latency, and the environment evolves faster than a human operator can re-solve an optimisation model manually.
@@ -1437,6 +1461,10 @@ This architecture preserves a clean separation between optimisation logic — wh
 
 
 ## 10. Evaluation and Operational Impact
+
+![Figure 10: Shadow-to-Production Promotion Gate Sequence](diagrams/part2_diagram_10.png)
+
+*Figure 10: Shadow-to-Production Promotion Gate Sequence With Measurement Checkpoints*
 
 The preceding sections specified how each capability layer operates — from graph construction (§8.1) through optimisation hybrids (§9). This section establishes how each layer is evaluated and how evaluation results gate promotion from development into production.
 
@@ -1730,6 +1758,10 @@ The LangGraph state machine implements a four-node planning loop: `observe → p
 
 Each circuit breaker writes a structured event to the audit log with the blocking reason, the agent state snapshot, and the GNN attribution provenance that triggered the planning cycle. This log is the primary artefact for post-hoc safety review.
 
+![Figure 11: Loop State Transition Diagram](diagrams/part2_diagram_11.png)
+
+*Figure 11: Loop State Transition Diagram — Progressive Autonomy Framework (DISABLED, SUSPENDED, ENABLED)*
+
 #### Progressive Autonomy Gates: TM Forum Autonomous Networks L0–L5 with Implementation-Specific Loop State Machine
 
 The governance framework combines two complementary mechanisms:
@@ -1843,6 +1875,10 @@ All four paradigms publish artefacts to a single MLflow Model Registry instance.
 Cross-paradigm lineage is tracked by recording upstream model versions as tags on downstream registrations. For example, the agentic system's registered graph records the GNN Production version and the RAG index snapshot hash it depends on, enabling a complete dependency audit trail for any production incident.
 
 ### 13.4 FinOps Cost Attribution
+
+![Figure 15: FinOps Cost Attribution](diagrams/part2_diagram_14.png)
+
+*Figure 15: FinOps Cost Attribution — Base (A$56.7K) vs. Production-Grade (A$171K) Breakdown*
 
 Figure 15 presents the full FinOps cost attribution breakdown, showing a total platform infrastructure cost of A$171K per year. This figure is higher than the A$56.7K incremental infrastructure cost cited in §11's line-item table because Figure 15 includes capacity headroom (2× sizing for burst GNN training workloads) and high-availability redundancy (active-passive failover for the LLM serving tier). The §11 figure represents steady-state marginal cost for a single-replica deployment; Figure 15 represents the recommended production-grade allocation.
 
@@ -2593,17 +2629,17 @@ The following diagrams appear throughout this paper. Rendered images are in the 
 |---|---|---|---|
 | Figure 1 | §3 | Three-Tier Measurement Framework | `part2_diagram_02` |
 | Figure 2 | §3 | Counterfactual Evaluation Decision Tree | `part2_diagram_03` |
-| Figure 3 | §4 | KPI Dependency Graph — Core Counter-to-Derived-Metric Lineage | — |
-| Figure 4 | §6 | Ensemble Anomaly Detection Architecture — Isolation Forest, Autoencoder, and GNN Scoring Paths | — |
-| Figure 5 | §6.1 | Autoencoder Reconstruction-Error Distribution Under Normal and Anomalous Conditions | — |
-| Figure 6 | §7 | Heterogeneous Graph Schema — Node Types, Edge Types, and Relationship Semantics | `part2_diagram_04` |
-| Figure 7 | §7 | System Component Deployment Map — rApp, Near-RT RIC, and E2 Interface Boundaries | `part2_diagram_04` |
-| Figure 8 | §8 | RootCauseGNN Forward-Pass Data Flow Through HGTConv Layers / LLM-RAG Architecture | `part2_diagram_05` |
+| Figure 3 | §6 | Graph ML Architecture Extension — Topology, Training, Serving | `part2_diagram_04` |
+| Figure 4 | §7.4 | LLM/RAG Architecture — Ingestion, Retrieval, Generation, Guardrails | `part2_diagram_05` |
+| Figure 5 | §8.5 | Digital Twin Architecture — Sync, Simulation, RL, What-If | `part2_diagram_06` |
+| Figure 6 | §11.3 | Federated Learning Architecture | `part2_diagram_07` |
+| Figure 7 | §12 | Agentic System Architecture | `part2_diagram_08` |
+| Figure 8 | §12.1 | Progressive Autonomy Framework — L0 to L3 | `part2_diagram_09` |
 | Figure 9 | §9 | Multi-Paradigm Platform Architecture Overview | `part2_diagram_01` |
-| Figure 10 | §10 | Shadow-to-Production Promotion Gate Sequence With Measurement Checkpoints | `part2_diagram_11` |
-| Figure 11 | §12 | Loop State Transition Diagram / Progressive Autonomy Framework | `part2_diagram_09` |
-| Figure 12 | §12 | Agentic Orchestrator Trust Escalation Ladder — Level 0 Through Level 5 Autonomy Milestones | `part2_diagram_08` |
-| Figure 13 | §8.5 | Digital Twin Synchronisation Cycle — Live KPI Ingestion, State Reconciliation, and Counterfactual Replay | `part2_diagram_06` |
+| Figure 10 | §16 | Implementation Roadmap Gantt Chart | `part2_diagram_10` |
+| Figure 11 | §10 | Agent Safety Layer Sequence — Self-Healing Scenario | `part2_diagram_11` |
+| Figure 12 | §13 | Unified Governance Across Paradigms | `part2_diagram_12` |
+| Figure 13 | §13.2 | Feature Store Evolution — Tabular to Multi-Modal | `part2_diagram_13` |
 | Figure 14 | §16 | Part 2 Implementation Roadmap — 18-Month Phased Deployment With Promotion Gates | `part2_diagram_10` |
 | Figure 15 | §13 | FinOps Cost Attribution — Base (A$56.7K) vs. Production-Grade (A$171K) Breakdown | `part2_diagram_14` |
 
