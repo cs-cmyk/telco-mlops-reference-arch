@@ -1,6 +1,6 @@
 # Telco MLOps Reference Architecture — Part 2: Extending the Architecture to Graph ML, LLMs, Agentic Systems, and Beyond
 
----
+**Author:** Chirag Shinde — chirag.m.shinde@gmail.com
 
 ## Executive Summary
 
