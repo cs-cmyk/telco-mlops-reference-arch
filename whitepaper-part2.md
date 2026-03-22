@@ -2,8 +2,6 @@
 
 **Author:** Chirag Shinde — chirag.m.shinde@gmail.com
 
----
-
 ## Executive Summary
 
 Part 1 [1] and the RAN paper [1a] established a production ML architecture for RAN operations and demonstrated its value: approximately A$5.21M/year in false alarm investigation savings at a 10,000-cell operator, paying back its A$173K/year operating cost within months of deployment. That architecture — and the operational trust it earns — is the foundation for three questions operators are now ready to answer: Which upstream node caused five cells to degrade simultaneously? What does this anomaly mean in plain English for the on-call engineer? And can the system initiate the first remediation step while a human reviews?
