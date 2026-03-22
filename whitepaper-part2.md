@@ -2,6 +2,8 @@
 
 **Author:** Chirag Shinde — chirag.m.shinde@gmail.com
 
+---
+
 ## Executive Summary
 
 Part 1 [1] and the RAN paper [1a] established a production ML architecture for RAN operations and demonstrated its value: approximately A$5.21M/year in false alarm investigation savings at a 10,000-cell operator, paying back its A$173K/year operating cost within months of deployment. That architecture — and the operational trust it earns — is the foundation for three questions operators are now ready to answer: Which upstream node caused five cells to degrade simultaneously? What does this anomaly mean in plain English for the on-call engineer? And can the system initiate the first remediation step while a human reviews?
@@ -352,7 +354,9 @@ Effective closed-loop automation depends on a shared, precise definition of what
 
 Network performance measurement in this architecture is structured as three successive tiers, each consuming the outputs of the tier below and producing artefacts that feed the tier above. The tiers are not organisational boundaries — they are signal-transformation stages, and all three must be operational before any autonomous action loop is enabled.
 
-***(See Figure 1: Three-Tier Measurement Framework)***
+![Figure 1: Three-Tier Measurement Framework](diagrams/part2_diagram_02.png)
+
+*Figure 1: Three-Tier Measurement Framework*
 
 **Tier 1 — Raw KPI Monitoring.** The foundation tier ingests PM counter exports from every cell-sector at the configured collection granularity — fifteen-minute intervals for batch paths, sub-minute for streaming paths (§7). Raw counters are normalised into the canonical KPI schema (§4) and written to the feature store. No inference occurs at this tier; its sole responsibility is completeness, timeliness, and schema conformance. Tier 1 health targets: data availability ≥ 99.5% of cell-intervals per day; schema-validation pass rate 100%. Any cell-sector that fails to report for two consecutive intervals is flagged `DATA_ABSENT` and excluded from downstream anomaly scoring until data resumes. This exclusion prevents false anomaly signals from propagating upward through Tiers 2 and 3.
 
@@ -433,7 +437,9 @@ Before any automated remediation action is dispatched, the Tier 3 reasoning chai
 
 The counterfactual evaluation decision tree below governs this determination. It is applied by the evaluation harness in `part2_04_evaluation.py` and is referenced in §10 when computing the adjusted uplift metrics.
 
-***(See Figure 2: Counterfactual Evaluation Decision Tree)***
+![Figure 2: Counterfactual Evaluation Decision Tree](diagrams/part2_diagram_03.png)
+
+*Figure 2: Counterfactual Evaluation Decision Tree*
 
 The decision tree traverses the following branches in order:
 
@@ -957,7 +963,9 @@ The table below classifies each new Part 2 component according to O-RAN deployme
 
 ### 7.3 New Components: Layer 5 — Graph ML (GNN Root Cause Service)
 
-[DIAGRAM: Figure 7 — System Component Deployment Map / Graph ML Architecture Extension. Show the Part 1 Flink pipeline on the left with `ran.anomaly.scores` Kafka topic flowing to a new branch: (a) topology graph construction service consuming O1 NRT via WG10 O1 interface and NRM from OSS inventory API; (b) graph feature join service merging per-cell anomaly scores (from `ran.anomaly.scores`) with node embeddings from Feast graph feature views; (c) GNN inference service (KServe InferenceService, ONNX-exported HGTConv model, 30-second batch cycle) consuming graph snapshots; (d) output to `ran.rootcause.scores` Kafka topic; (e) `ran.rootcause.scores` feeding back into Part 1's hierarchical alert aggregation alongside the existing `ran.anomaly.scores` stream. Annotate: "warm path — 30-second batch, not in Flink hot path". Highlight which components are new vs. inherited.]
+![Figure 7: System Component Deployment Map — Graph ML Architecture Extension](diagrams/part2_diagram_04.png)
+
+*Figure 7: System Component Deployment Map — rApp, Near-RT RIC, and E2 Interface Boundaries*
 
 **Topology Graph Construction Service.** A Python microservice (Kubernetes Deployment, 2 vCPU / 4 GB RAM) that maintains a live in-memory graph snapshot using NetworkX for graph operations and PyG's `HeteroData` for model-compatible tensor representation.
 
@@ -1002,7 +1010,9 @@ The table below classifies each new Part 2 component according to O-RAN deployme
 
 ### 7.4 New Components: Layer 6 — LLM/RAG (NOC Intelligence Service)
 
-[DIAGRAM: LLM/RAG Architecture for Telco Operations (see Figure 8 for the GNN data flow that feeds into this pipeline). Show: (a) document ingestion pipeline (3GPP TS 28.552, TS 32.425, O-RAN specs, operator runbooks, historical incident reports → text extraction → chunking strategy → embedding model → Qdrant vector store); (b) knowledge graph construction (telco entity ontology: cells → sites → clusters, KPIs → thresholds → fault categories → runbook procedures, built from structured metadata and indexed separately from vector chunks); (c) hybrid retrieval layer (KG traversal for structured entity lookups + dense vector search with metadata filtering by document type and release version); (d) prompt construction (system prompt with operator context + retrieved KG entities + retrieved text chunks + alert card from Part 1 + root cause from Layer 5); (e) LLM inference with guardrails (faithfulness check comparing LLM output against retrieved source passages, citation extraction, prompt injection screening); (f) three output paths: NOC narration (displayed in alert card UI), standards Q&A response (NOC analyst chat interface), configuration candidate (requires mandatory human review gate before any network action). Annotate governance gates at each output path.]
+![Figure 8: LLM/RAG Architecture for Telco Operations](diagrams/part2_diagram_05.png)
+
+*Figure 8: RootCauseGNN Forward-Pass Data Flow Through HGTConv Layers / LLM-RAG Architecture*
 
 **Document Ingestion Pipeline.** Airflow DAG running weekly (or on document update trigger) that: extracts text from PDF/HTML sources, applies section-aware chunking (512 tokens with 20% overlap for narrative text; table-preserving chunking for 3GPP counter definition tables), generates dense embeddings using a locally hosted sentence-transformers model (`BAAI/bge-m3` or equivalent multilingual model for operators with non-English runbooks), and upserts to a Qdrant collection with metadata tags: `{doc_type, release_version, spec_number, section_id}`. Release-version metadata filtering is critical: a retrieval query grounded in an operator running 3GPP Release 16 must return only Release 16-compatible configuration guidance, excluding guidance from later releases such as Release 18.
 
@@ -1020,7 +1030,9 @@ The agentic architecture is detailed in Section 12. From a system design perspec
 
 **Human-in-the-loop gate:** Implemented as a LangGraph `interrupt()` node that pauses the agent state machine and posts a structured approval request to the NOC alert card UI via the TMF642 API. The NOC analyst approves, modifies, or rejects the proposed action within a configurable timeout (default: 10 minutes for non-critical actions, 2 minutes for time-sensitive auto-escalation). Timeout expiry results in action cancellation, not automatic execution — a deliberate fail-safe.
 
-[DIAGRAM: Figure 12 — Agentic Orchestrator Trust Escalation and System Architecture. Per Section 12 diagram description in the plan.]
+![Figure 12: Agentic Orchestrator Trust Escalation and System Architecture](diagrams/part2_diagram_08.png)
+
+*Figure 12: Agentic Orchestrator Trust Escalation Ladder — Level 0 Through Level 5 Autonomy Milestones*
 
 ### 7.6 Interface Summary
 
@@ -2260,7 +2272,9 @@ If Kafka, Feast, and MLflow are not yet operational, complete Part 1 deployment 
 
 > **Note:** Phase timelines assume a team of 2–3 ML engineers with Part 1 operational and a Kubernetes cluster available. Teams without dedicated ML engineers should add 4–6 weeks to each phase. Phases 2 and 3 can be developed in parallel if separate team tracks are available.
 
-[DIAGRAM: Figure 14 — Part 2 Implementation Roadmap Gantt Chart. Horizontal timeline across 18 months. Phase 1 (Weeks 1–4): Measurement Framework — no dependencies on new infrastructure. Phase 2 (Months 2–4): Graph ML — depends on Feast offline store and O1 NRM topology. Phase 3 (Months 3–6): LLM/RAG — depends on GPU nodes; can run in parallel with Phase 2. Phase 4 (Months 6–12): Agent Pilot (single fault category, human-in-the-loop). Phase 5 (Months 12–18): Multi-agent coordination pilot. Promotion gates between phases shown as vertical dashed lines with gate criteria labels. Parallel tracks for Phase 2 and 3 indicated by horizontal overlap. Dependencies on Part 1 components shown as entry arrows from a "Part 1 Deployed" milestone at Month 0.]
+![Figure 14: Part 2 Implementation Roadmap — 18-Month Phased Deployment](diagrams/part2_diagram_10.png)
+
+*Figure 14: Part 2 Implementation Roadmap — 18-Month Phased Deployment With Promotion Gates*
 
 ---
 
@@ -2573,25 +2587,33 @@ Version pins use lower-bound constraints (`>=X.Y,<(X+1).0`) rather than exact pi
 
 ## Appendix: Diagram Index
 
-The following diagrams appear throughout this paper:
+The following diagrams appear throughout this paper. Rendered images are in the `diagrams/` folder; Mermaid source files (`.mmd`) are provided alongside for re-rendering.
 
-| Figure | Section | Title |
+| Figure | Section | Title | File |
+|---|---|---|---|
+| Figure 1 | §3 | Three-Tier Measurement Framework | `part2_diagram_02` |
+| Figure 2 | §3 | Counterfactual Evaluation Decision Tree | `part2_diagram_03` |
+| Figure 3 | §4 | KPI Dependency Graph — Core Counter-to-Derived-Metric Lineage | — |
+| Figure 4 | §6 | Ensemble Anomaly Detection Architecture — Isolation Forest, Autoencoder, and GNN Scoring Paths | — |
+| Figure 5 | §6.1 | Autoencoder Reconstruction-Error Distribution Under Normal and Anomalous Conditions | — |
+| Figure 6 | §7 | Heterogeneous Graph Schema — Node Types, Edge Types, and Relationship Semantics | `part2_diagram_04` |
+| Figure 7 | §7 | System Component Deployment Map — rApp, Near-RT RIC, and E2 Interface Boundaries | `part2_diagram_04` |
+| Figure 8 | §8 | RootCauseGNN Forward-Pass Data Flow Through HGTConv Layers / LLM-RAG Architecture | `part2_diagram_05` |
+| Figure 9 | §9 | Multi-Paradigm Platform Architecture Overview | `part2_diagram_01` |
+| Figure 10 | §10 | Shadow-to-Production Promotion Gate Sequence With Measurement Checkpoints | `part2_diagram_11` |
+| Figure 11 | §12 | Loop State Transition Diagram / Progressive Autonomy Framework | `part2_diagram_09` |
+| Figure 12 | §12 | Agentic Orchestrator Trust Escalation Ladder — Level 0 Through Level 5 Autonomy Milestones | `part2_diagram_08` |
+| Figure 13 | §8.5 | Digital Twin Synchronisation Cycle — Live KPI Ingestion, State Reconciliation, and Counterfactual Replay | `part2_diagram_06` |
+| Figure 14 | §16 | Part 2 Implementation Roadmap — 18-Month Phased Deployment With Promotion Gates | `part2_diagram_10` |
+| Figure 15 | §13 | FinOps Cost Attribution — Base (A$56.7K) vs. Production-Grade (A$171K) Breakdown | `part2_diagram_14` |
+
+Additional diagrams not referenced as numbered figures in the body text:
+
+| Diagram | Title | File |
 |---|---|---|
-| Figure 1 | §3 | Three-Tier Measurement Framework |
-| Figure 2 | §3 | Counterfactual Evaluation Decision Tree |
-| Figure 3 | §4 | KPI Dependency Graph — Core Counter-to-Derived-Metric Lineage |
-| Figure 4 | §6 | Ensemble Anomaly Detection Architecture — Isolation Forest, Autoencoder, and GNN Scoring Paths |
-| Figure 5 | §6.1 | Autoencoder Reconstruction-Error Distribution Under Normal and Anomalous Conditions |
-| Figure 6 | §7 | Heterogeneous Graph Schema — Node Types, Edge Types, and Relationship Semantics |
-| Figure 7 | §7 | System Component Deployment Map — rApp, Near-RT RIC, and E2 Interface Boundaries |
-| Figure 8 | §8 | RootCauseGNN Forward-Pass Data Flow Through HGTConv Layers |
-| Figure 9 | §9 | Optimisation Hybrid Decision Surface — MILP Constraint Boundary Overlaid on RL Policy Gradient |
-| Figure 10 | §10 | Shadow-to-Production Promotion Gate Sequence With Measurement Checkpoints |
-| Figure 11 | §12 | Loop State Transition Diagram — Implementation-Specific DISABLED, SUSPENDED, and ENABLED Transitions |
-| Figure 12 | §12 | Agentic Orchestrator Trust Escalation Ladder — Level 0 Through Level 5 Autonomy Milestones |
-| Figure 13 | §8.5 | Digital Twin Synchronisation Cycle — Live KPI Ingestion, State Reconciliation, and Counterfactual Replay |
-| Figure 14 | §16 | Part 2 Implementation Roadmap — 18-Month Phased Deployment With Promotion Gates |
-| Figure 15 | §13 | FinOps Cost Attribution — Base (A$56.7K) vs. Production-Grade (A$171K) Breakdown |
+| Federated Learning Architecture | §11.3 — FL coordinator, secure aggregation, differential privacy, operator trust boundaries | `part2_diagram_07` |
+| Unified Governance Across Paradigms | §13 — Per-paradigm governance comparison with shared OPA policy engine | `part2_diagram_12` |
+| Feature Store Evolution | §13.2 — Tabular to multi-modal context platform (Feast v2 → v3) | `part2_diagram_13` |
 
 
 ## Appendix: Section Dependencies
@@ -2766,4 +2788,3 @@ The following tags are used to classify this paper in the operator knowledge pla
 `IMPLEMENTATION` — Companion code, concrete schema examples, production configuration patterns. *§8.1 (graph schema, GNN architecture), §8.2 (RAG pipeline), §8.4 (edge AI compression), §8.5 (digital twin), §8.6 (fraud detection), §12 (agent safety layer), companion scripts 01–05, Appendix: Python Dependencies.*
 
 ---
-
